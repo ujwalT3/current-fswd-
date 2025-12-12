@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Important Points - Notes</title><link rel="stylesheet" href="/style.css"></head><body><main style="max-width:1000px;margin:2.5rem auto;padding:2rem;background:rgba(10,5,20,0.35);border-radius:12px;border:1px solid rgba(158,0,255,0.15)"><h1>Important Points - Notes</h1>
+<section><h2 style="color:#9E00FF">Page 1</h2><ol>
+<li>Program simulates a linear integer queue using an array.</li>
+<li>Implements standard queue operations: Insert, Delete, Display.</li>
+<li>Prints appropriate messages for queue empty and queue overflow.</li>
+<li>Defines `MAX` as 5, setting the maximum queue capacity.</li>
+<li>`front` and `rear` pointers are initialized to -1 for an empty queue.</li>
+<li>`insert` function checks `rear == MAX - 1` for overflow condition.</li>
+<li>On first insertion, `front` pointer is correctly set to 0.</li>
+<li>New elements are added by incrementing `rear` and storing the value.</li>
+<li>Successful insertions trigger a confirmation message printout.</li>
+<li>Overflow condition prevents insertion, displaying an error message.</li>
+</ol></section>
+<section><h2 style="color:#9E00FF">Page 2</h2><ol>
+<li>`delete` function checks `front == -1 || front &gt; rear` for underflow.</li>
+<li>Deleted element from `queue[front]` is printed before removal.</li>
+<li>After deletion, the `front` pointer is incremented to the next element.</li>
+<li>`display` function verifies if the queue is empty prior to printing.</li>
+<li>If not empty, `display` iterates from `front` to `rear` to show elements.</li>
+<li>The `main` function uses an infinite loop for continuous program execution.</li>
+<li>A menu-driven interface guides the user through queue operations.</li>
+<li>Underflow condition prevents deletion, outputting an appropriate error message.</li>
+<li>The `display` function clearly indicates an empty queue state.</li>
+<li>Main loop repeatedly presents operation choices to the user.</li>
+</ol></section>
+<section><h2 style="color:#9E00FF">Page 3</h2><ol>
+<li>The program menu offers Insert, Delete, Display, and Exit options.</li>
+<li>User input for choice and insertion value handled by `scanf`.</li>
+<li>A `switch` statement directs program flow based on user selection.</li>
+<li>Case 1 prompts for value, then calls the `insert` function.</li>
+<li>Case 2 invokes the `delete` function to remove a queue element.</li>
+<li>Case 3 executes the `display` function to show current queue contents.</li>
+<li>Case 4 safely terminates the program and returns 0.</li>
+<li>Invalid choices trigger an error message, prompting user retry.</li>
+<li>Text introduces a new task: simulating a circular queue using an array.</li>
+<li>Circular queue also requires Insert, Delete, and Display operations.</li>
+</ol></section>
+<section><h2 style="color:#9E00FF">Page 4</h2><ol>
+<li>Circular queue also requires specific empty and overflow messages.</li>
+<li>`MAX` is defined as 5 for the circular queue array size.</li>
+<li>`front` and `rear` pointers are initialized to -1 for an empty circular queue.</li>
+<li>Circular queue `insert` function has a more complex overflow check.</li>
+<li>Overflow occurs if `front == 0` and `rear == MAX - 1`, or `front` is `(rear + 1) % MAX`.</li>
+<li>For the very first insertion, `front` and `rear` are both set to 0.</li>
+<li>Subsequent `rear` updates use the modulo operator `(rear + 1) % MAX`.</li>
+<li>The new value is stored at the calculated `rear` position.</li>
+<li>An appropriate message confirms successful element insertion.</li>
+<li>Modulo operator enables wrapping of `rear` around the array.</li>
+</ol></section>
+<section><h2 style="color:#9E00FF">Page 5</h2><ol>
+<li>Circular queue `delete` function checks for underflow condition (`front == -1`).</li>
+<li>The element at `front` of the circular queue is printed before deletion.</li>
+<li>If `front` equals `rear`, the queue becomes completely empty.</li>
+<li>When empty, `front` and `rear` pointers are reset to -1.</li>
+<li>Otherwise, `front` is updated using modulo: `(front + 1) % MAX`.</li>
+<li>The circular queue `display` function also checks for emptiness.</li>
+<li>Elements are displayed from `front` up to `rear` using a `while` loop.</li>
+<li>Display loop uses `i = (i + 1) % MAX` for circular traversal.</li>
+<li>The display loop terminates when current index `i` equals `rear`.</li>
+<li>Correct pointer management ensures proper circular queue operations.</li>
+</ol></section>
+<section><h2 style="color:#9E00FF">Page 6</h2><ol>
+<li>The circular queue `main` function runs in an infinite loop.</li>
+<li>A menu presents Insert, Delete, Display, and Exit options.</li>
+<li>User choice and insert value inputs are handled by `scanf`.</li>
+<li>A `switch` statement processes user's choice to call relevant functions.</li>
+<li>Case 1 allows inserting a value into the circular queue.</li>
+<li>Case 2 triggers deletion of an element from the circular queue.</li>
+<li>Case 3 displays all elements currently in the circular queue.</li>
+<li>Case 4 terminates the program cleanly and returns 0.</li>
+<li>Invalid menu choices result in an error message.</li>
+<li>The user interaction structure mirrors the linear queue implementation.</li>
+</ol></section>
+<p style="margin-top:1.5rem"><a href="/Notion.html" style="color:#BF6FFF">← Back to Notes</a></p></main></body></html>

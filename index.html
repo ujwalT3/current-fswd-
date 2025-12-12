@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion IQ - Smart Study Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">Notion IQ</div>
+            <ul>
+                <!-- nav items rendered by script.js -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="content-box hero-content">
+                <h1 class="animate-fade-in-up">Welcome to Notion IQ</h1>
+                <p class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                    Stop just reading your notes. Start learning from them.
+                    Upload your text files, and we'll instantly generate smart flashcards and quizzes.
+                </p>
+                <!-- changed Get Started from anchor to button with JS behavior -->
+                <button id="get-started-btn" class="cta-button animate-fade-in-up" style="animation-delay: 0.4s;">
+                    Get Started
+                </button>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="content-box reveal-on-scroll">
+                <h2>How It Works</h2>
+                <div class="aboutsection">
+                <p>
+                    Notion IQ transforms your static notes into dynamic study tools. 
+                    Simply upload a ".txt" file or paste your notes into our editor. 
+                    Our AI analyzes the key concepts and generates a complete set of flashcards
+                    and a multiple-choice quiz to test your knowledge.
+                </p> 
+                <p>
+                    Whether you're preparing for exams or just want to reinforce your learning, 
+                    Notion IQ makes studying efficient and effective. 
+                    Say goodbye to passive reading and hello to active learning!
+                </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+<script>
+  // Get Started button behavior:
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('get-started-btn');
+    btn.addEventListener('click', () => {
+      try {
+        const loggedIn = sessionStorage.getItem('notioniq_logged_in') === '1';
+        if (loggedIn) {
+          // signed in -> open Notion editor
+          window.location.href = 'Notion.html';
+        } else {
+          // not signed in -> take user to signup page
+          window.location.href = 'signup.html';
+        }
+      } catch (e) {
+        // fallback: go to signup if storage throws
+        window.location.href = 'signup.html';
+      }
+    });
+  });
+</script>
+
+<script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notion - Notion IQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .notes-layout{display:flex;gap:2rem;max-width:1200px;margin:0 auto;padding:2rem}
+    .notes-main{flex:2}
+    .important-points{flex:1;background:rgba(10,5,20,.5);padding:2rem;border-radius:12px;border:1px solid rgba(158,0,255,.3);height:fit-content;position:sticky;top:100px}
+    .important-points h3{color:#fff;margin-bottom:1rem;font-size:1.5rem}
+    .important-points ul{list-style:none;padding:0}
+    .important-points li{color:#e0e0e0;margin:1rem 0;padding-left:1.5rem;position:relative;line-height:1.6}
+    .important-points li:before{content:"•";color:rgb(158,0,255);position:absolute;left:0;font-size:1.5rem}
+    .point-number{color:#9E00FF;font-weight:600;margin-right:.5rem}
+    .loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(158,0,255,.3);border-radius:50%;border-top-color:#9E00FF;animation:spin 1s ease-in-out infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ai-badge{display:inline-block;background:linear-gradient(90deg,#9E00FF,#BF6FFF);padding:.3rem .8rem;border-radius:20px;font-size:.8rem;margin-left:.5rem;color:#fff;font-weight:600}
+    .small-muted{font-size:.9rem;color:#cfcfcf;margin-top:.5rem}
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <div class="logo">Notion IQ</div>
+    <ul><!-- rendered by script.js --></ul>
+  </nav>
+</header>
+
+<main>
+  <div class="notes-layout">
+    <div class="notes-main">
+      <div class="signin-page-wrapper">
+        <div class="content-box reveal-on-scroll visible">
+          <h2>Create Your Notes <span class="ai-badge"> ChatGPT </span></h2>
+
+          <div id="file-upload-section">
+            <p>Upload your notes or paste text to generate AI-powered insights and quizzes</p>
+            <textarea id="notes-input" placeholder="Paste your notes here..." class="quiz-textarea"></textarea>
+
+            <input type="file" id="file-upload" accept=".txt,.docx,.pdf" class="file-input">
+            <button id="extract-file" class="cta-button">Extract Text</button>
+
+            <div style="margin-top:1rem;">
+              <button id="analyze-notes" class="cta-button">
+                <span id="analyze-text">Analyze with AI (Important Points)</span>
+                <span id="analyze-loading" class="loading" style="display:none;"></span>
+              </button>
+
+              <!-- Hidden initially. Shown after important points are ready. -->
+              <button id="generate-quiz-from-points" class="cta-button" style="display:none;margin-left:8px;">
+                <span id="quiz-from-points-text">Generate Quiz from Important Points</span>
+                <span id="quiz-from-points-loading" class="loading" style="display:none;"></span>
+              </button>
+
+              <!-- Keep old generate-quiz (raw notes) optional -->
+              <button id="generate-quiz" class="cta-button" style="display:none;margin-left:8px;">
+                <span id="quiz-text">Generate Quiz (from notes)</span>
+                <span id="quiz-loading" class="loading" style="display:none;"></span>
+              </button>
+            </div>
+
+            <p class="small-muted">Flow: Analyze → review important points → generate quiz from those points for best quality.</p>
+          </div>
+
+          <a href="index.html" class="back-link">&larr; Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="important-points" id="important-points-section">
+      <h3>📝 AI-Extracted Key Points</h3>
+      <ul id="important-points-list">
+        <li id="no-points">No important points yet. Run <strong>Analyze with AI</strong> to extract them.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:3000';
+
+  const notesInput = document.getElementById('notes-input');
+  const fileUpload = document.getElementById('file-upload');
+  const extractBtn = document.getElementById('extract-file');
+  const analyzeBtn = document.getElementById('analyze-notes');
+  const generateQuizBtn = document.getElementById('generate-quiz');
+  const generateQuizFromPointsBtn = document.getElementById('generate-quiz-from-points');
+
+  const importantPointsSection = document.getElementById('important-points-section');
+  const importantPointsList = document.getElementById('important-points-list');
+  const analyzeText = document.getElementById('analyze-text');
+  const analyzeLoading = document.getElementById('analyze-loading');
+  const quizText = document.getElementById('quiz-text');
+  const quizLoading = document.getElementById('quiz-loading');
+  const quizFromPointsText = document.getElementById('quiz-from-points-text');
+  const quizFromPointsLoading = document.getElementById('quiz-from-points-loading');
+  const noPointsLi = document.getElementById('no-points');
+
+  // Helper to show important points UI list and store points in sessionStorage
+  function showImportantPoints(pointsArray) {
+    importantPointsList.innerHTML = '';
+    if (!pointsArray || !Array.isArray(pointsArray) || pointsArray.length === 0) {
+      importantPointsList.innerHTML = '<li>No important points found.</li>';
+      sessionStorage.removeItem('notioniq_important_points');
+      generateQuizFromPointsBtn.style.display = 'none';
+      return;
+    }
+
+    pointsArray.forEach((p, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="point-number">${i+1}.</span> ${p}`;
+      importantPointsList.appendChild(li);
+    });
+
+    // Persist points for later quiz generation
+    try {
+      sessionStorage.setItem('notioniq_important_points', JSON.stringify(pointsArray));
+    } catch (e) { /* ignore */ }
+
+    // Show the generate quiz from points button only when user is logged in
+    try {
+      const loggedIn = sessionStorage.getItem('notioniq_logged_in') === '1';
+      if (loggedIn) {
+        generateQuizFromPointsBtn.style.display = 'inline-block';
+      } else {
+        // show it but disabled to indicate login required (optional)
+        generateQuizFromPointsBtn.style.display = 'inline-block';
+        generateQuizFromPointsBtn.disabled = true;
+        generateQuizFromPointsBtn.title = 'Sign in to generate a quiz';
+      }
+    } catch (e) {
+      generateQuizFromPointsBtn.style.display = 'inline-block';
+    }
+  }
+
+  // File extraction (same as before)
+  fileUpload.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onload = e2 => { notesInput.value = e2.target.result; };
+      reader.readAsText(file);
+    } else {
+      notesInput.placeholder = `${file.name} selected. Click Extract Text to load its contents.`;
+    }
+  });
+
+  extractBtn.addEventListener('click', async () => {
+    const file = fileUpload.files[0];
+    if (!file) return alert('Choose a .txt, .docx, or .pdf file first.');
+    const form = new FormData();
+    form.append('file', file);
+    extractBtn.disabled = true;
+    extractBtn.textContent = 'Extracting...';
+    try {
+      const res = await fetch(`${API_BASE}/api/extract-text`, {
+        method: 'POST',
+        credentials: 'include',
+        body: form
+      });
+      const data = await res.json();
+      if (data.success) {
+        notesInput.value = data.text;
+      } else {
+        alert(data.message || 'Failed to extract text');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error. Make sure the server is running!');
+    } finally {
+      extractBtn.disabled = false;
+      extractBtn.textContent = 'Extract Text';
+    }
+  });
+
+  // Analyze notes -> produce important points
+  analyzeBtn.addEventListener('click', async () => {
+    const file = fileUpload.files[0];
+    const notesText = notesInput.value.trim();
+    if (!file && notesText.length < 50) return alert('Please paste notes or upload a file with at least 50 characters.');
+
+    const form = new FormData();
+    if (file) form.append('file', file);
+    else form.append('notes', notesText);
+    form.append('title', 'Important Points - Notes');
+
+    analyzeBtn.disabled = true;
+    analyzeText.style.display = 'none';
+    analyzeLoading.style.display = 'inline-block';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/analyze-pages`, {
+        method: 'POST',
+        credentials: 'include',
+        body: form
+      });
+      const data = await res.json();
+      // Expect either: { success: true, url: "...", points: [...] } OR { success: true, points: [...] } OR success true + url
+      if (data.success) {
+        // If server returned important points directly, show them
+        if (data.points && Array.isArray(data.points)) {
+          showImportantPoints(data.points);
+          // ensure generate-quiz-from-points is visible/available
+        } else if (data.url) {
+          // If server created a page and returned a url, we can fetch the page or redirect.
+          // But we also want the points for quiz generation — try to fetch points endpoint if available.
+          // For simplicity: redirect to the page showing important points
+          window.location.href = data.url;
+          return;
+        } else {
+          // no points returned — fallback: try to parse 'importantText' or 'summary'
+          if (data.summary) {
+            // convert summary into bullet points (split by sentences)
+            const s = data.summary;
+            const bullets = s.split(/[\.\n]+/).map(x => x.trim()).filter(Boolean).slice(0,10);
+            showImportantPoints(bullets);
+          } else {
+            alert('Analysis completed but no important points were returned by the server.');
+          }
+        }
+      } else {
+        alert(data.message || 'Failed to analyze notes and create important points.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error. Make sure the server is running!');
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeText.style.display = 'inline-block';
+      analyzeLoading.style.display = 'none';
+    }
+  });
+
+  // Generate quiz from raw notes (fallback). Hidden by default.
+  generateQuizBtn.addEventListener('click', async () => {
+    try {
+      const notesText = notesInput.value.trim();
+      if (!notesText) return alert('No notes to generate a quiz from.');
+      generateQuizBtn.disabled = true;
+      quizText.style.display = 'none';
+      quizLoading.style.display = 'inline-block';
+
+      const res = await fetch(`${API_BASE}/api/generate-quiz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ notes: notesText })
+      });
+      const data = await res.json();
+      if (data.success && data.questions) {
+        sessionStorage.setItem('aiQuizQuestions', JSON.stringify(data.questions));
+        window.location.href = 'quiz.html';
+      } else {
+        alert(data.message || 'Quiz generation failed.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while generating quiz.');
+    } finally {
+      generateQuizBtn.disabled = false;
+      quizText.style.display = 'inline-block';
+      quizLoading.style.display = 'none';
+    }
+  });
+
+  // Generate quiz specifically from the extracted important points
+  generateQuizFromPointsBtn.addEventListener('click', async () => {
+    // Must be logged in to generate quiz (server may enforce)
+    try {
+      const loggedIn = sessionStorage.getItem('notioniq_logged_in') === '1';
+      if (!loggedIn) {
+        // If not logged in, send them to signin/signup
+        if (confirm('You need to be signed in to generate quizzes. Go to Sign Up?')) {
+          window.location.href = 'signup.html';
+        }
+        return;
+      }
+    } catch (e) {}
+
+    const pointsJson = sessionStorage.getItem('notioniq_important_points');
+    if (!pointsJson) return alert('No important points found. Run Analyze first.');
+
+    const points = JSON.parse(pointsJson);
+    if (!Array.isArray(points) || points.length === 0) return alert('No important points available to generate quiz.');
+
+    generateQuizFromPointsBtn.disabled = true;
+    quizFromPointsText.style.display = 'none';
+    quizFromPointsLoading.style.display = 'inline-block';
+
+    try {
+      // Send important points to backend for better-targeted quiz
+      const res = await fetch(`${API_BASE}/api/generate-quiz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ important_points: points })
+      });
+      const data = await res.json();
+      if (data.success && data.questions) {
+        sessionStorage.setItem('aiQuizQuestions', JSON.stringify(data.questions));
+        window.location.href = 'quiz.html';
+      } else {
+        // If server didn't supply quiz, optionally fallback to client mock
+        if (data.questions && Array.isArray(data.questions) && data.questions.length) {
+          sessionStorage.setItem('aiQuizQuestions', JSON.stringify(data.questions));
+          window.location.href = 'quiz.html';
+        } else {
+          alert(data.message || 'Quiz generation failed on server.');
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while generating quiz. You can try again.');
+    } finally {
+      generateQuizFromPointsBtn.disabled = false;
+      quizFromPointsText.style.display = 'inline-block';
+      quizFromPointsLoading.style.display = 'none';
+    }
+  });
+
+  // On load: show generate quiz button state depending on login and saved points
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const pointsJson = sessionStorage.getItem('notioniq_important_points');
+      if (pointsJson) {
+        // show the extracted points if present in storage
+        const points = JSON.parse(pointsJson);
+        showImportantPoints(points);
+      } else {
+        // hide generate button until analysis
+        generateQuizFromPointsBtn.style.display = 'none';
+      }
+    } catch (e) {
+      generateQuizFromPointsBtn.style.display = 'none';
+    }
+  });
+</script>
+
+<script src="script.js" defer></script>
+</body>
+</html>

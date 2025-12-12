@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - Notion IQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">Notion IQ</div>
+      <ul><!-- rendered by script.js --></ul>
+    </nav>
+  </header>
+
+  <div class="signin-page-wrapper">
+    <div class="content-box reveal-on-scroll visible">
+      <h2>Sign Up to Notion IQ</h2>
+      <div id="message" style="display:none;padding:1rem;margin-bottom:1rem;border-radius:8px;"></div>
+
+      <form id="signup-form" class="signin-form">
+        <input type="text" id="username" placeholder="Username" required minlength="3">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required minlength="6">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit" class="cta-button">Sign Up</button>
+      </form>
+
+      <p class="signin-footer">Already have an account? <a href="signin.html">Sign In</a></p>
+      <a href="index.html" class="back-link">&larr; Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:3000';
+    const form = document.getElementById('signup-form');
+    const messageDiv = document.getElementById('message');
+
+    function showMessage(message, isError = false) {
+      messageDiv.textContent = message;
+      messageDiv.style.display = 'block';
+      messageDiv.style.background = isError ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 255, 0, 0.2)';
+      messageDiv.style.border = isError ? '1px solid rgba(255, 0, 0, 0.5)' : '1px solid rgba(0, 255, 0, 0.5)';
+      messageDiv.style.color = '#fff';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) return showMessage('Passwords do not match!', true);
+      if (password.length < 6) return showMessage('Password must be at least 6 characters!', true);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          try {
+            sessionStorage.setItem('notioniq_logged_in', '1');
+            if (data.user && data.user.name) sessionStorage.setItem('notioniq_user', data.user.name);
+            if (window._NotionIQAuth && window._NotionIQAuth.setLoggedInFlag) window._NotionIQAuth.setLoggedInFlag(data.user && data.user.name);
+          } catch (e) { /* ignore */ }
+
+          showMessage('Account created successfully! Redirecting...');
+          setTimeout(() => { window.location.href = 'Notion.html'; }, 1000);
+        } else {
+          showMessage(data.message, true);
+        }
+      } catch (err) {
+        showMessage('Network error. Please try again.', true);
+      }
+    });
+  </script>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

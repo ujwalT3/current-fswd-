@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Notion IQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* keep your quiz styles */
+        .quiz-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .question-text { font-size: 1.2rem; color: #fff; margin-bottom: 1.5rem; }
+        .quiz-option { background: rgba(158, 0, 255, 0.1); border: 1px solid rgba(158, 0, 255, 0.3); color: #fff; padding: 1rem 2rem; margin: 0.5rem 0; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; width: 100%; text-align: left; }
+        .quiz-option:hover { background: rgba(158, 0, 255, 0.2); }
+        .quiz-option.selected { background: rgba(158, 0, 255, 0.3); border-color: rgba(158, 0, 255, 0.6); }
+        .explanation { background: rgba(10, 5, 20, 0.7); padding: 1rem; margin-top: 1rem; border-radius: 8px; border-left: 3px solid #9E00FF; display: none; }
+        .explanation.visible { display: block; }
+        .ai-badge { display: inline-block; background: linear-gradient(90deg, #9E00FF, #BF6FFF); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; margin-left: 0.5rem; color: white; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Notion IQ</div>
+            <ul><!-- rendered by script.js --></ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="quiz-container">
+            <div class="content-box reveal-on-scroll visible">
+                <h2>AI-Generated Quiz <span class="ai-badge">🤖 Powered by ChatGPT</span></h2>
+                
+                <div id="question-container" class="quiz-content">
+                    <p class="question-text" id="question-text"></p>
+                    <div id="options-container"></div>
+                    <div id="explanation" class="explanation"></div>
+                    
+                    <div id="quiz-controls">
+                        <button id="prev-question" class="quiz-button">Previous</button>
+                        <button id="next-question" class="quiz-button">Next</button>
+                        <button id="submit-quiz" class="cta-button" style="display: none;">Submit Quiz</button>
+                    </div>
+                    
+                    <div id="quiz-results" style="display: none;">
+                        <h3>Quiz Results</h3>
+                        <p id="score-display"></p>
+                        <button id="retry-quiz" class="cta-button">Try Again</button>
+                        <a href="Notion.html" class="back-link" style="display: inline-block; margin-left: 1rem;">Create New Quiz</a>
+                    </div>
+                </div>
+                
+                <a href="Notion.html" class="back-link">← Back to Notes</a>
+            </div>
+        </div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-question');
+    const nextButton = document.getElementById('next-question');
+    const submitButton = document.getElementById('submit-quiz');
+    const quizResults = document.getElementById('quiz-results');
+    const scoreDisplay = document.getElementById('score-display');
+    const retryButton = document.getElementById('retry-quiz');
+    const explanationDiv = document.getElementById('explanation');
+
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+
+    // If user is not logged in, block access (optional)
+    try {
+      const loggedIn = sessionStorage.getItem('notioniq_logged_in') === '1';
+      if (!loggedIn) {
+        // you can choose to redirect to signin.html instead of blocking
+        questionText.textContent = 'You must be signed in to view quizzes. Please sign in.';
+        optionsContainer.style.display = 'none';
+        document.getElementById('quiz-controls').style.display = 'none';
+        return;
+      }
+    } catch (e) { /* ignore */ }
+
+    // Get AI-generated questions
+    const questionsData = sessionStorage.getItem('aiQuizQuestions');
+    if (!questionsData) {
+        questionText.textContent = 'No quiz found. Please go back and generate a quiz.';
+        return;
+    }
+
+    currentQuestions = JSON.parse(questionsData);
+    userAnswers = new Array(currentQuestions.length).fill(null);
+
+    function displayQuestion() {
+        const question = currentQuestions[currentQuestionIndex];
+        questionText.textContent = `Question ${currentQuestionIndex + 1}: ${question.question}`;
+        
+        optionsContainer.innerHTML = '';
+        explanationDiv.classList.remove('visible');
+        
+        question.options.forEach((option) => {
+            const button = document.createElement('button');
+            button.className = `quiz-option ${userAnswers[currentQuestionIndex] === option ? 'selected' : ''}`;
+            button.textContent = option;
+            button.onclick = () => selectOption(option);
+            optionsContainer.appendChild(button);
+        });
+
+        if (userAnswers[currentQuestionIndex]) showExplanation();
+
+        prevButton.disabled = currentQuestionIndex === 0;
+        nextButton.disabled = currentQuestionIndex === currentQuestions.length - 1;
+        submitButton.style.display = currentQuestionIndex === currentQuestions.length - 1 ? 'inline-block' : 'none';
+    }
+
+    function selectOption(option) {
+        userAnswers[currentQuestionIndex] = option;
+        const options = optionsContainer.getElementsByClassName('quiz-option');
+        Array.from(options).forEach(opt => {
+            opt.classList.remove('selected');
+            if (opt.textContent === option) opt.classList.add('selected');
+        });
+        showExplanation();
+    }
+
+    function showExplanation() {
+        const question = currentQuestions[currentQuestionIndex];
+        const userAnswer = userAnswers[currentQuestionIndex];
+        
+        if (userAnswer) {
+            explanationDiv.innerHTML = `
+                <strong>Correct Answer:</strong> ${question.answer}<br>
+                <strong>Explanation:</strong> ${question.explanation || 'No explanation provided.'}
+            `;
+            explanationDiv.classList.add('visible');
+        }
+    }
+
+    prevButton.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            displayQuestion();
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+    });
+
+    submitButton.addEventListener('click', () => {
+        const score = currentQuestions.reduce((acc, q, i) => acc + (userAnswers[i] === q.answer ? 1 : 0), 0);
+        const percentage = Math.round((score / currentQuestions.length) * 100);
+        quizResults.style.display = 'block';
+        document.getElementById('question-container').querySelector('.question-text').style.display = 'none';
+        optionsContainer.style.display = 'none';
+        explanationDiv.style.display = 'none';
+        document.getElementById('quiz-controls').style.display = 'none';
+        scoreDisplay.textContent = `You scored ${score} out of ${currentQuestions.length} (${percentage}%)`;
+    });
+
+    retryButton.addEventListener('click', () => {
+        userAnswers = new Array(currentQuestions.length).fill(null);
+        currentQuestionIndex = 0;
+        quizResults.style.display = 'none';
+        document.getElementById('question-container').querySelector('.question-text').style.display = 'block';
+        optionsContainer.style.display = 'block';
+        document.getElementById('quiz-controls').style.display = 'flex';
+        displayQuestion();
+    });
+
+    displayQuestion();
+});
+</script>
+
+<script src="script.js" defer></script>
+</body>
+</html>

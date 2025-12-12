@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Important Points - Notes</title>
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    body {
+      background: #0b0014;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2rem;
+      color: #fff;
+    }
+
+    .page-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(158, 0, 255, 0.3);
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    .page-title {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      color: #c57bff;
+      font-weight: 600;
+    }
+
+    ol {
+      padding-left: 20px;
+      line-height: 1.6;
+    }
+
+    li {
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    a.back {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+      color: #bf6fff;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    a.back:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Important Points - Notes</h1>
+
+    
+      <div class="page-card">
+        <div class="page-title">Page 1</div>
+        <ol>
+          <li>Introduction to Poisson distribution applications, covering various real-world scenarios.</li><li>Problems involve calculating specific probabilities like 'exactly 2 accidents' or '5 emissions'.</li><li>One problem includes determining probability of a guarantee violation based on defective rates.</li><li>Poisson distribution applies to rare, independent events occurring at a constant average rate.</li><li>Key conditions include number of trials tending to infinity and success probability tending to zero.</li><li>The Poisson distribution's mean and variance are both equal to its parameter λ.</li><li>The formula P(X=x) = (λ^x * e^-λ) / x! is used for calculating probabilities.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 2</div>
+        <ol>
+          <li>Further Poisson distribution problems for demand, errors, and defective items.</li><li>Calculate probabilities for no demand, refused demand, and varying error counts.</li><li>Problems also involve approximating numbers of items with defects in large consignments.</li><li>One scenario requires calculating bacterial growth probability across multiple test tubes.</li><li>Several exercises focus on fitting a Poisson distribution to given observed frequency data.</li><li>These problems reinforce the application of Poisson distribution in diverse practical contexts.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 3</div>
+        <ol>
+          <li>Continued practice with fitting Poisson distributions to empirical frequency data.</li><li>Introduction to Geometric Distribution, focusing on the first success in a sequence of trials.</li><li>Problems cover calculating the probability of the first success at a specific trial number.</li><li>Scenarios include sales calls, dart throws, and finding a specific type of person.</li><li>Determine expected number of trials and variance until the first success.</li><li>One problem involves expected spending in a game until the first win.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 4</div>
+        <ol>
+          <li>Geometric distribution conditions: two outcomes, constant success probability, P(X=x)=p*q^(x-1).</li><li>Mean (1/p) and variance ((1-p)/p^2) are key parameters for geometric distribution.</li><li>Problems include calculating success probabilities within a number of tries and expected attempts.</li><li>Introduction to Continuous Uniform Distribution (U[a,b]), where all outcomes are equally likely.</li><li>Problems involve finding probabilities for intervals, mean, and variance of uniform distributions.</li><li>Applications include bus breakdowns, conference durations, and randomly chosen points.</li><li>The uniform distribution's mean is (b+a)/2 and variance is (b-a)^2/12.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 5</div>
+        <ol>
+          <li>Uniform distribution concepts: PDF is constant within interval, CDF is (x-a)/(b-a).</li><li>Problems calculate probabilities for coffee volume, train arrival times, and waiting times.</li><li>One problem involves a conditional probability for dental charges exceeding a certain amount.</li><li>Introduction to Exponential Distribution, modeling time between events or system lifetimes.</li><li>Problems calculate probabilities for shower duration, telephone calls, and bus arrival times.</li><li>Applications include finding probabilities for net profit exceeding a threshold over days.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 6</div>
+        <ol>
+          <li>Further exponential distribution problems, calculating probabilities for profit and sales tax.</li><li>Exponential distribution PDF: f(x) = αe^(-αx) and parameters: Mean = 1/α, Variance = 1/α^2.</li><li>Problems cover compressor life, computer response times, and tyre mileage analysis.</li><li>Introduction to Normal (Gaussian) Distribution for bulb life and cholesterol values.</li><li>Problems involve estimating numbers or probabilities based on mean and standard deviation.</li><li>One problem focuses on finding normal distribution parameters from given percentile data.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 7</div>
+        <ol>
+          <li>Normal distribution applications in examinations, heights, and product quality control.</li><li>Problems include estimating average marks, passing scores, and student counts within height ranges.</li><li>The normal distribution PDF and parameters (mean μ, variance σ^2) are introduced.</li><li>Calculate defective percentages for manufactured parts given tolerance limits.</li><li>Estimate product replacement numbers or income distribution from normal data.</li><li>These problems demonstrate the wide applicability of the normal distribution in statistics.</li>
+        </ol>
+      </div>
+    
+      <div class="page-card">
+        <div class="page-title">Page 8</div>
+        <ol>
+          <li>Final normal distribution problem determining minimum marks for specific grades.</li><li>Introduction to Gamma Distribution, modeling power consumption, computer life, and survival times.</li><li>Gamma distribution PDF and parameters: Mean = αβ, Variance = αβ^2.</li><li>Problems calculate probabilities for given time intervals using the gamma distribution.</li><li>Determine gamma distribution parameters from given mean and variance (e.g., insurance claims).</li><li>Applications include probability of insufficient stock given gamma distributed consumption.</li>
+        </ol>
+      </div>
+    
+
+    <a class="back" href="/Notion.html">← Back to Notes</a>
+  </div>
+</body>
+</html>
